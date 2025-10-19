@@ -1,0 +1,1 @@
+This repository is created solely for the purpose of sharing the code for the question 4 (Intractability) of the assignment 2 of computing theory.
