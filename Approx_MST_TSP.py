@@ -1,55 +1,77 @@
-import random
-import time
 
-def create_graph(n):
-    graph = [[0] * n for _ in range(n)]
-    for i in range(n):
-        for j in range(i + 1, n):
-            distance = random.randint(1, 100)
-            graph[i][j] = distance
-            graph[j][i] = distance
-    return graph
+# 2-approximation for metric TSP via MST preorder ("double-tree"):
 
-def find_mst(graph):
-    n = len(graph)
-    visited = [False] * n
-    min_dist = [float('inf')] * n
-    min_dist[0] = 0
+# 1) Build an MST with Prim (dense O(n^2) version for simplicity).
+# 2) Take a preorder traversal of the MST (each vertex once).
+# 3) Compute the tour cost for that preorder (implicit shortcutting).
+
+
+def _prim_mst_parent(cost):
+    # Prim's MST (dense O(n^2)) → parent array (parent[0] = -1).
+    n = len(cost)
+    in_mst = [False] * n
+    key = [float("inf")] * n
     parent = [-1] * n
+    key[0] = 0
+
+    # Repeatedly add the cheapest non-MST vertex
     for _ in range(n):
-        min_val = float('inf')
         u = -1
+        best = float("inf")
         for v in range(n):
-            if not visited[v] and min_dist[v] < min_val:
-                min_val = min_dist[v]
+            if not in_mst[v] and key[v] < best:
+                best = key[v]
                 u = v
-        if u == -1:
+        if u == -1:            # Defensive: graph should be connected here
             break
-        visited[u] = True
+        in_mst[u] = True
+        # Relax edges out of u
         for v in range(n):
-            if (not visited[v] and graph[u][v] != 0 and graph[u][v] < min_dist[v]):
-                min_dist[v] = graph[u][v]
+            w = cost[u][v]
+            if not in_mst[v] and 0 < w < key[v]:
+                key[v] = w
                 parent[v] = u
     return parent
 
-def approx_tsp(graph):
-    n = len(graph)
-    parent = find_mst(graph)
-    # Double the edges and shortcut (simplified)
-    tour = [0]
-    for i in range(1, n):
-        tour.append(i)
-    tour.append(0)
-    total_cost = 0
-    for i in range(len(tour) - 1):
-        total_cost += graph[tour[i]][tour[i + 1]]
-    return total_cost
+def _mst_adj_from_parent(parent):
+    # Undirected adjacency list from MST parent[] array.
+    n = len(parent)
+    adj = [[] for _ in range(n)]
+    for v in range(1, n):
+        u = parent[v]
+        if u != -1:
+            adj[u].append(v)
+            adj[v].append(u)
+    return adj
 
-if __name__ == "__main__":
-    n = 450  # Adjust n for testing
-    graph = create_graph(n)
-    start_time = time.time()
-    result = approx_tsp(graph)
-    end_time = time.time()
-    print(f"Approximate Cost: {result}")
-    print(f"Execution Time: {end_time - start_time:.4f} seconds")
+def _preorder(adj, start=0):
+    # Iterative DFS preorder; each vertex appears exactly once.
+    visited = [False] * len(adj)
+    order = []
+    stack = [start]
+    while stack:
+        u = stack.pop()
+        if visited[u]:
+            continue
+        visited[u] = True
+        order.append(u)
+        # Push in reverse-sorted order so smaller indices pop first
+        for v in sorted(adj[u], reverse=True):
+            if not visited[v]:
+                stack.append(v)
+    return order
+
+def _tour_cost(cost, order):
+    # Cycle cost through 'order' and back to the start node.
+    total = 0
+    for i in range(len(order) - 1):
+        total += cost[order[i]][order[i + 1]]
+    total += cost[order[-1]][order[0]]
+    return total
+
+def approx_tsp(cost):
+    # Metric TSP 2-approx via MST preorder (double-tree).
+    parent = _prim_mst_parent(cost)
+    adj = _mst_adj_from_parent(parent)
+    order = _preorder(adj, start=0)
+    return _tour_cost(cost, order)

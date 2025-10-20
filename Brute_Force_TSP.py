@@ -1,37 +1,30 @@
+
+# Exact solver for TSP using brute-force permutations.
+
+# - Starts at node 0, tries every permutation of the remaining nodes,
+#   and returns the minimum tour cost.
+# - Intended only for very small n (factorial time).
+
+
 from itertools import permutations
-import random
-import time
 
-def create_graph(n):
-    graph = [[0] * n for _ in range(n)]
-    for i in range(n):
-        for j in range(i + 1, n):
-            distance = random.randint(1, 100)
-            graph[i][j] = distance
-            graph[j][i] = distance
-    return graph
+def tsp_min_cost(cost):
+    # Exact TSP via brute-force permutations from start node 0. O(n!).
+    n = len(cost)
+    # Permute all nodes except the fixed start (0)
+    nodes = list(range(1, n))
+    best = float("inf")
 
-def tsp(cost):
-    num_nodes = len(cost)
-    nodes = list(range(1, num_nodes))
-    min_cost = float('inf')
     for perm in permutations(nodes):
-        curr_cost = 0
-        curr_node = 0
-        for node in perm:
-            curr_cost += cost[curr_node][node]
-            curr_node = node
-        curr_cost += cost[curr_node][0]
-        min_cost = min(min_cost, curr_cost)
-    return min_cost
+        total = 0
+        curr = 0
+        # Walk 0 -> perm[0] -> ... -> perm[-1]
+        for v in perm:
+            total += cost[curr][v]
+            curr = v
+        # Close the cycle back to 0
+        total += cost[curr][0]
+        if total < best:
+            best = total
 
-if __name__ == "__main__":
-    n = 11  # Adjust n, warn if >12
-    if n > 12:
-        print("Warning: n > 12 may result in very long computation time!")
-    graph = create_graph(n)
-    start_time = time.time()
-    result = tsp(graph)
-    end_time = time.time()
-    print(f"Minimum Cost: {result}")
-    print(f"Execution Time: {end_time - start_time:.4f} seconds")
+    return best
