@@ -1,13 +1,11 @@
-# life_core.py
-# Minimal Game of Life implementation plus helpers for this assignment.
-# Toroidal grid, random initialisation, state hashing, oscillation detection, glider detection.
+# Game of Life implementation for this assignment.
+# Random initialisation, state hashing, oscillation detection, glider detection.
 
 from __future__ import annotations
 from dataclasses import dataclass
 import numpy as np
 from typing import Optional, Tuple, Dict, List
 
-# ----- Conway's Life update on a torus -----
 
 def next_state_bounded(grid: np.ndarray) -> np.ndarray:
     """
@@ -37,7 +35,7 @@ def random_grid(n: int, p: float, rng: np.random.Generator) -> np.ndarray:
 
 def grid_hash(grid: np.ndarray) -> int:
     """Fast-ish hash: view as bytes and hash(). Good enough for cycle detection here."""
-    # Note: Python's hash is salted per run, but we only compare equality within a run.
+    # only compare equality within a run.
     return hash(grid.tobytes())
 
 # ----- Oscillation & still-life detection -----
@@ -58,7 +56,7 @@ class CycleDetector:
         Record hash h at time 'step'.
         If h was seen before, return period = step - first_seen.
         Otherwise return None.
-        We also evict old hashes past the sliding 'window'.
+        evict old hashes past the sliding 'window'.
         """
         if h in self.seen:
             return step - self.seen[h]
@@ -67,15 +65,15 @@ class CycleDetector:
         self.order.append(h)
         if len(self.order) > self.window:
             old = self.order.pop(0)
-            # only evict if the stored index matches (avoid stomping a reinserted hash)
+            # only evict if the stored index matches
             if self.seen.get(old, None) is not None and self.seen[old] < step - self.window:
                 self.seen.pop(old, None)
         return None
 
 # ----- Glider detection -----
-# We'll detect classic 5-cell gliders by matching small 3x3 masks.
+# Detect classic 5-cell gliders by matching small 3x3 masks.
 # There are 4 phases in a given direction; rotating those phases covers all directions.
-# We'll prebuild a set of unique masks to check.
+# Prebuild a set of unique masks to check.
 
 def _rotate90(mask: np.ndarray) -> np.ndarray:
     return np.rot90(mask, k=1)
@@ -148,7 +146,7 @@ def simulate_once(n: int, p: float, T: int, rng: np.random.Generator) -> RunOutc
     glider_seen = 0
     t_glider: Optional[int] = None
 
-    # We treat t=0 as the initial state.
+    # treat t=0 as the initial state.
     h0 = grid_hash(g)
     cyc.update(0, h0)
 
@@ -180,6 +178,6 @@ def simulate_once(n: int, p: float, T: int, rng: np.random.Generator) -> RunOutc
 
         g = g_next
 
-    # If we reach here, we ran out of time without a terminal label.
-    # We call it "active_end" to mean it neither died, nor froze, nor became periodic within T.
+    # If this is reached, we ran out of time without a terminal label.
+    # Lets call it "active_end" to mean it neither died, nor froze, nor became periodic within T.
     return RunOutcome("active_end", T, None, glider_seen, t_glider)

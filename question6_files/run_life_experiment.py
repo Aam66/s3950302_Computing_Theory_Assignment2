@@ -1,4 +1,3 @@
-# run_life_experiment.py
 # Runs the study: loops over (N, p), repeats R times, logs CSVs, makes two plots.
 
 import argparse
@@ -123,7 +122,7 @@ def main():
         ax.plot(sub["p"], sub["Extinct_pct"], marker="o", label="Extinct %")
         ax.plot(sub["p"], sub["Still_pct"], marker="o", label="Still-life %")
         ax.plot(sub["p"], sub["Oscillating_pct"], marker="o", label="Oscillating %")
-        ax.plot(sub["p"], sub["ActiveEnd_pct"], marker="o", label="ActiveEnd %")  # ← added line
+        ax.plot(sub["p"], sub["ActiveEnd_pct"], marker="o", label="ActiveEnd %")
         ax.plot(sub["p"], sub["Glider_seen_pct"], marker="o", label="Glider-seen %")
         ax.set_title(f"Outcome probabilities vs density (N={N})")
         ax.set_xlabel("Initial live-cell density p")
