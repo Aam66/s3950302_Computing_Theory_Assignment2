@@ -1,4 +1,3 @@
-
 # Exact solver for TSP using brute-force permutations.
 
 # - Starts at node 0, tries every permutation of the remaining nodes,

@@ -1,4 +1,3 @@
-
 # Nearest-neighbour heuristic for TSP:
 
 # - Start at node 0.

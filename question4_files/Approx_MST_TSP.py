@@ -1,4 +1,3 @@
-
 # 2-approximation for metric TSP via MST preorder ("double-tree"):
 
 # 1) Build an MST with Prim (dense O(n^2) version for simplicity).
@@ -22,7 +21,7 @@ def _prim_mst_parent(cost):
             if not in_mst[v] and key[v] < best:
                 best = key[v]
                 u = v
-        if u == -1:            # Defensive: graph should be connected here
+        if u == -1:            
             break
         in_mst[u] = True
         # Relax edges out of u

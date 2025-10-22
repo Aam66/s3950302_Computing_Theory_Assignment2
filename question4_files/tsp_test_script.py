@@ -1,19 +1,11 @@
-# tsp_test_script.py
-"""
-TSP timing comparison: Exact (brute force) vs 2-approx (MST/double-tree) vs Nearest-Neighbor.
+# TSP timing comparison: Exact (brute force) vs 2-approx (MST/double-tree) vs Nearest-Neighbor.
 
-Now with live progress:
-- Brute force runs in a separate process with a heartbeat every PROGRESS_INTERVAL seconds.
-- If the run exceeds MAX_BF_TIME, we terminate it and skip BF for larger n.
-
-Outputs:
-- Pretty console table
-- CSV: results_tsp_timings.csv (beside this file)
-"""
+# Now with live progress:
+# - Brute force runs in a separate process with a heartbeat every PROGRESS_INTERVAL seconds.
+# - If the run exceeds MAX_BF_TIME, we terminate it and skip BF for larger n.
 
 import os, sys, time, math, random, csv, multiprocessing as mp
 
-# --- make imports robust no matter where you run from ---
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
 if HERE not in sys.path:
@@ -21,7 +13,6 @@ if HERE not in sys.path:
 if ROOT not in sys.path:
     sys.path.append(ROOT)
 
-# Two import styles so it works whether question4_files is a package or just a folder.
 try:
     import question4_files.Brute_Force_TSP as BF
     import question4_files.Approx_MST_TSP as MST
@@ -193,7 +184,7 @@ def run_suite():
             "nn_runs": nn_runs
         })
 
-    # ---- pretty print ----
+    # ---- terminal output ----
     print("\nResults Table (totals for fast methods; they are repeated to avoid 0.0000 artifacts)")
     print("| n | Brute-Force (s) | 2-Approx MST total (s) [runs] | Nearest-Neighbor total (s) [runs] |")
     print("|---|------------------|-------------------------------|------------------------------------|")
