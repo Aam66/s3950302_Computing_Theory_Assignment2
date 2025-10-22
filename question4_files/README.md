@@ -7,3 +7,5 @@ It contains the three algorithm files:
 
 And the test script:
     tsp_test_script.py
+
+To run/start the experiment/test, simply run the tsp_test_script.py file.
